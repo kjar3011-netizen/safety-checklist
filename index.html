@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>보건관리 위탁사업장 안전보건점검 체크리스트 (제1편 총칙)</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&display=swap');
+
+    body {
+      font-family: 'Noto Sans KR', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: #f1f5f9;
+      color: #0f172a;
+    }
+
+    .status-btn {
+      transition: all 0.15s ease;
+    }
+
+    .approval-table th, .approval-table td {
+      border: 1px solid #334155;
+      text-align: center;
+    }
+
+    .sig-pad-canvas {
+      touch-action: none;
+      cursor: crosshair;
+    }
+
+    @media print {
+      @page {
+        size: A4 portrait;
+        margin: 10mm 10mm 12mm 10mm;
+      }
+
+      body {
+        background-color: #ffffff !important;
+        color: #000000 !important;
+        font-size: 11px !important;
+      }
+
+      .no-print {
+        display: none !important;
+      }
+
+      .print-only {
+        display: block !important;
+      }
+
+      .print-container {
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        box-shadow: none !important;
+        border: none !important;
+      }
+
+      .print-break-inside-avoid {
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+
+      .print-break-before {
+        break-before: page;
+        page-break-before: always;
+      }
+
+      input, textarea, select {
+        border: none !important;
+        background: transparent !important;
+        padding: 1px 2px !important;
+        box-shadow: none !important;
+        resize: none !important;
+      }
+
+      table {
+        border-collapse: collapse !important;
+      }
+
+      th, td {
+        border-color: #64748b !important;
+      }
+    }
+  </style>
+</head>
+<body class="min-h-screen pb-12">
+
+  <!-- Top Control Bar (Hidden on Print) -->
+  <header class="no-print sticky top-0 z-30 bg-slate-900 text-white shadow-md">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-2.5">
+        <div class="w-9 h-9 rounded-lg bg-teal-600 flex items-center justify-center shrink-0">
+          <i data-lucide="shield-check" class="w-5 h-5 text-white"></i>
+        </div>
+        <div>
+          <h1 class="text-sm sm:text-base font-bold leading-tight">보건관리 위탁사업장 안전보건점검</h1>
+          <p class="text-[11px] text-slate-300">산업안전보건기준에 관한 규칙 제1편 총칙 (2026. 3. 2. 시행)</p>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-2">
+        <!-- Year & Month Selector -->
+        <div class="flex items-center bg-slate-800 rounded-lg p-1 border border-slate-700">
+          <select id="yearSelect" aria-label="점검 연도" class="bg-transparent text-xs sm:text-sm font-medium px-2 py-1 focus:outline-none text-white cursor-pointer">
+            <option value="2025" class="text-slate-900">2025년</option>
+            <option value="2026" class="text-slate-900" selected>2026년</option>
+            <option value="2027" class="text-slate-900">2027년</option>
+          </select>
+          <span class="text-slate-500 px-1">/</span>
+          <select id="monthSelect" aria-label="점검 월" class="bg-transparent text-xs sm:text-sm font-semibold px-2 py-1 focus:outline-none text-teal-300 cursor-pointer">
+            <option value="1" class="text-slate-900">1월</option>
+            <option value="2" class="text-slate-900">2월</option>
+            <option value="3" class="text-slate-900">3월</option>
+            <option value="4" class="text-slate-900">4월</option>
+            <option value="5" class="text-slate-900">5월</option>
+            <option value="6" class="text-slate-900">6월</option>
+            <option value="7" class="text-slate-900">7월</option>
+            <option value="8" class="text-slate-900">8월</option>
+            <option value="9" class="text-slate-900">9월</option>
+            <option value="10" class="text-slate-900">10월</option>
+            <option value="11" class="text-slate-900" selected>11월</option>
+            <option value="12" class="text-slate-900">12월</option>
+          </select>
+        </div>
+
+        <!-- View Mode Toggle -->
+        <div class="flex items-center bg-slate-800 rounded-lg p-1 border border-slate-700 text-xs">
+          <button id="btnViewMonthly" type="button" class="px-2.5 py-1 rounded font-medium bg-teal-600 text-white">월별 점검표</button>
+          <button id="btnViewAnnual" type="button" class="px-2.5 py-1 rounded font-medium text-slate-300 hover:text-white">연간 12개월 현황</button>
+        </div>
+
+        <!-- Actions -->
+        <button id="btnExportJson" type="button" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-700 hover:bg-slate-600 text-xs font-medium transition">
+          <i data-lucide="download" class="w-3.5 h-3.5"></i> 백업
+        </button>
+        <label class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-700 hover:bg-slate-600 text-xs font-medium cursor-pointer transition">
+          <i data-lucide="upload" class="w-3.5 h-3.5"></i> 불러오기
+          <input id="inputImportJson" type="file" accept=".json" class="hidden" />
+        </label>
+        <button id="btnPrint" type="button" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-teal-500 hover:bg-teal-400 text-slate-950 text-xs sm:text-sm font-bold shadow transition">
+          <i data-lucide="printer" class="w-4 h-4"></i> 인쇄 / PDF 출력
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Printable Sheet Container -->
+  <main class="print-container max-w-7xl mx-auto mt-5 bg-white rounded-xl shadow-sm border border-slate-200 p-5 sm:p-8">
+
+    <!-- Document Header + Top-Right Approval Box (결재칸) -->
+    <section class="flex flex-col md:flex-row md:items-start justify-between gap-4 pb-5 border-b-2 border-slate-800">
+      <div class="flex-1">
+        <div class="inline-flex items-center gap-2 px-2.5 py-0.5 rounded bg-teal-50 text-teal-800 border border-teal-200 text-xs font-semibold mb-2">
+          <span>법령 근거:</span>
+          <a href="https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=273603" target="_blank" rel="noopener noreferrer" class="underline hover:text-teal-600">
+            산업안전보건기준에 관한 규칙 제1편 총칙 (2026. 3. 2. 시행)
+          </a>
+        </div>
+        <h2 class="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
+          안전보건점검 체크리스트 <span id="docPeriodTitle" class="text-teal-700">(2026년 11월)</span>
+        </h2>
+        <p class="text-xs sm:text-sm text-slate-600 mt-1">
+          보건관리 위탁사업장 방문·지도용 | 제1편 총칙 (제2장 작업장 ~ 제10장 잔재물 등의 조치기준, 총 46개 항목)
+        </p>
+      </div>
+
+      <!-- Top-Right Approval Box (결재칸) -->
+      <div class="shrink-0 self-end md:self-start">
+        <table class="approval-table text-xs bg-white">
+          <tbody>
+            <tr>
+              <th rowspan="2" class="w-7 bg-slate-100 font-bold text-slate-800 px-1.5 py-2 leading-tight">결<br/>재</th>
+              <th class="w-20 bg-slate-100 font-semibold text-slate-700 py-1 px-2">담당</th>
+              <th class="w-20 bg-slate-100 font-semibold text-slate-700 py-1 px-2">검토</th>
+              <th class="w-20 bg-slate-100 font-semibold text-slate-700 py-1 px-2">승인</th>
+            </tr>
+            <tr class="h-14">
+              <td class="p-1 align-middle">
+                <input id="appDrafter" type="text" placeholder="서명/날짜" class="w-full text-center text-[11px] text-slate-800 focus:outline-none focus:bg-teal-50 rounded py-1" />
+              </td>
+              <td class="p-1 align-middle">
+                <input id="appReviewer" type="text" placeholder="서명/날짜" class="w-full text-center text-[11px] text-slate-800 focus:outline-none focus:bg-teal-50 rounded py-1" />
+              </td>
+              <td class="p-1 align-middle">
+                <input id="appApprover" type="text" placeholder="서명/날짜" class="w-full text-center text-[11px] text-slate-800 focus:outline-none focus:bg-teal-50 rounded py-1" />
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Workplace Metadata Block -->
+    <section class="mt-4 print-break-inside-avoid">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 border border-slate-300 rounded-lg overflow-hidden text-xs sm:text-sm">
+        <div class="flex border-b sm:border-r border-slate-300">
+          <span class="w-28 shrink-0 bg-slate-100 font-semibold text-slate-700 px-3 py-2 flex items-center border-r border-slate-300">사업장명</span>
+          <input id="metaCompany" type="text" placeholder="사업장명 입력" class="w-full px-2.5 py-2 focus:outline-none focus:bg-teal-50" />
+        </div>
+        <div class="flex border-b lg:border-r border-slate-300">
+          <span class="w-28 shrink-0 bg-slate-100 font-semibold text-slate-700 px-3 py-2 flex items-center border-r border-slate-300">업종 / 인원</span>
+          <input id="metaIndustry" type="text" placeholder="예: 제조업 / 80명" class="w-full px-2.5 py-2 focus:outline-none focus:bg-teal-50" />
+        </div>
+        <div class="flex border-b sm:border-r border-slate-300">
+          <span class="w-28 shrink-0 bg-slate-100 font-semibold text-slate-700 px-3 py-2 flex items-center border-r border-slate-300">방문일자</span>
+          <input id="metaVisitDate" type="date" class="w-full px-2.5 py-2 focus:outline-none focus:bg-teal-50" />
+        </div>
+        <div class="flex border-b border-slate-300">
+          <span class="w-28 shrink-0 bg-slate-100 font-semibold text-slate-700 px-3 py-2 flex items-center border-r border-slate-300">위탁기관</span>
+          <input id="metaAgency" type="text" value="순천향대학교 서울병원 직업환경의학팀" class="w-full px-2.5 py-2 focus:outline-none focus:bg-teal-50 text-xs" />
+        </div>
+        <div class="flex border-b sm:border-b-0 sm:border-r border-slate-300 lg:col-span-2">
+          <span class="w-28 shrink-0 bg-slate-100 font-semibold text-slate-700 px-3 py-2 flex items-center border-r border-slate-300">점검자(소속/성명)</span>
+          <input id="metaInspector" type="text" placeholder="예: 보건관리파트 / 홍길동" class="w-full px-2.5 py-2 focus:outline-none focus:bg-teal-50" />
+        </div>
+        <div class="flex lg:col-span-2">
+          <span class="w-28 shrink-0 bg-slate-100 font-semibold text-slate-700 px-3 py-2 flex items-center border-r border-slate-300">사업장 담당자</span>
+          <input id="metaManager" type="text" placeholder="예: 안전보건팀 / 김철수" class="w-full px-2.5 py-2 focus:outline-none focus:bg-teal-50" />
+        </div>
+      </div>
+    </section>
+
+    <!-- Live KPI Summary Dashboard -->
+    <section class="mt-5 print-break-inside-avoid">
+      <div class="flex items-center justify-between mb-2">
+        <h3 class="text-sm font-bold text-slate-800 flex items-center gap-1.5">
+          <i data-lucide="bar-chart-3" class="w-4 h-4 text-teal-600 no-print"></i>
+          <span>평가 결과 실시간 집계 (<span id="summaryMonthLabel">11월</span>)</span>
+        </h3>
+        <span class="text-xs text-slate-500">적합률 = 양호 ÷ (양호 + 미흡 + 미실시)</span>
+      </div>
+
+      <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2.5">
+        <div class="rounded-lg border border-slate-200 bg-slate-50 p-3 text-center">
+          <div class="text-[11px] font-medium text-slate-500">전체 항목</div>
+          <div id="kpiTotal" class="text-xl font-bold text-slate-800 mt-0.5">46</div>
+        </div>
+        <div class="rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-center">
+          <div class="text-[11px] font-semibold text-emerald-700">양호</div>
+          <div id="kpiGood" class="text-xl font-bold text-emerald-700 mt-0.5">0</div>
+        </div>
+        <div class="rounded-lg border border-amber-200 bg-amber-50 p-3 text-center">
+          <div class="text-[11px] font-semibold text-amber-700">미흡</div>
+          <div id="kpiWeak" class="text-xl font-bold text-amber-700 mt-0.5">0</div>
+        </div>
+        <div class="rounded-lg border border-rose-200 bg-rose-50 p-3 text-center">
+          <div class="text-[11px] font-semibold text-rose-700">미실시</div>
+          <div id="kpiMissing" class="text-xl font-bold text-rose-700 mt-0.5">0</div>
+        </div>
+        <div class="rounded-lg border border-slate-200 bg-slate-100 p-3 text-center">
+          <div class="text-[11px] font-medium text-slate-600">해당없음</div>
+          <div id="kpiNA" class="text-xl font-bold text-slate-600 mt-0.5">0</div>
+        </div>
+        <div class="rounded-lg border border-sky-200 bg-sky-50 p-3 text-center">
+          <div class="text-[11px] font-semibold text-sky-700">유효 점검대상</div>
+          <div id="kpiApplicable" class="text-xl font-bold text-sky-800 mt-0.5">0</div>
+        </div>
+        <div class="rounded-lg border border-teal-300 bg-teal-600 p-3 text-center text-white col-span-2 sm:col-span-1">
+          <div class="text-[11px] font-medium text-teal-100">적합률 (이행률)</div>
+          <div id="kpiRate" class="text-xl font-bold mt-0.5">0.0%</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Filter & Batch Toolbar (Hidden on Print) -->
+    <section id="filterToolbar" class="no-print mt-5 p-3 bg-slate-50 border border-slate-200 rounded-lg flex flex-wrap items-center justify-between gap-3">
+      <div class="flex flex-wrap items-center gap-2">
+        <select id="chapterFilter" aria-label="장별 필터" class="text-xs sm:text-sm border border-slate-300 rounded-md px-2.5 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-teal-500">
+          <option value="ALL">전체 장 (제2장 ~ 제10장)</option>
+        </select>
+
+        <select id="statusFilter" aria-label="평가 상태 필터" class="text-xs sm:text-sm border border-slate-300 rounded-md px-2.5 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-teal-500">
+          <option value="ALL">모든 상태</option>
+          <option value="미실시">미실시만 보기</option>
+          <option value="미흡">미흡만 보기</option>
+          <option value="ISSUE">미실시 + 미흡 보기</option>
+          <option value="양호">양호만 보기</option>
+          <option value="해당없음">해당없음만 보기</option>
+          <option value="UNCHECKED">미입력 항목만 보기</option>
+        </select>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-2">
+        <button id="btnFillGood" type="button" class="px-2.5 py-1.5 text-xs font-medium rounded-md border border-emerald-300 bg-emerald-50 text-emerald-800 hover:bg-emerald-100 transition">
+          미입력 항목 일괄 '양호'
+        </button>
+        <button id="btnClearMonth" type="button" class="px-2.5 py-1.5 text-xs font-medium rounded-md border border-slate-300 bg-white text-slate-700 hover:bg-slate-100 transition">
+          이번 달 초기화
+        </button>
+      </div>
+    </section>
+
+    <!-- View 1: Monthly Detailed Checklist -->
+    <section id="monthlyViewSection" class="mt-4">
+      <div class="overflow-x-auto border border-slate-300 rounded-lg">
+        <table class="w-full text-left border-collapse text-xs sm:text-sm">
+          <thead>
+            <tr class="bg-slate-800 text-white text-center">
+              <th class="py-2.5 px-2 w-10 border-r border-slate-600">No</th>
+              <th class="py-2.5 px-2 w-28 border-r border-slate-600">구분(장)</th>
+              <th class="py-2.5 px-2 w-32 border-r border-slate-600">근거 조문</th>
+              <th class="py-2.5 px-3 min-w-[220px] border-r border-slate-600">점검 항목 및 세부 확인 기준</th>
+              <th class="py-2.5 px-2 w-56 border-r border-slate-600">평가 결과 (4단계)</th>
+              <th class="py-2.5 px-3 min-w-[200px] border-r border-slate-600">미실시·미흡 코멘트 및 개선 권고</th>
+              <th class="py-2.5 px-2 w-28">개선기한/상태</th>
+            </tr>
+          </thead>
+          <tbody id="checklistTbody" class="divide-y divide-slate-200"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- View 2: Annual 12-Month Overview Matrix -->
+    <section id="annualViewSection" class="mt-4 hidden">
+      <div class="mb-2 flex items-center justify-between">
+        <h3 class="text-sm font-bold text-slate-800">연간 월별 점검 현황표 (<span id="annualYearLabel">2026년</span>)</h3>
+        <span class="no-print text-xs text-slate-500">월 칸을 클릭하면 해당 월의 상세 점검표로 이동합니다.</span>
+      </div>
+      <div class="overflow-x-auto border border-slate-300 rounded-lg">
+        <table class="w-full text-left border-collapse text-[11px] sm:text-xs">
+          <thead>
+            <tr class="bg-slate-800 text-white text-center">
+              <th class="py-2 px-1.5 w-9 border-r border-slate-600">No</th>
+              <th class="py-2 px-2 w-24 border-r border-slate-600">구분</th>
+              <th class="py-2 px-2 min-w-[160px] border-r border-slate-600">점검 항목</th>
+              <th class="py-2 px-1 w-10 border-r border-slate-600">1월</th>
+              <th class="py-2 px-1 w-10 border-r border-slate-600">2월</th>
+              <th class="py-2 px-1 w-10 border-r border-slate-600">3월</th>
+              <th class="py-2 px-1 w-10 border-r border-slate-600">4월</th>
+              <th class="py-2 px-1 w-10 border-r border-slate-600">5월</th>
+              <th class="py-2 px-1 w-10 border-r border-slate-600">6월</th>
+              <th class="py-2 px-1 w-10 border-r border-slate-600">7월</th>
+              <th class="py-2 px-1 w-10 border-r border-slate-600">8월</th>
+              <th class="py-2 px-1 w-10 border-r border-slate-600">9월</th>
+              <th class="py-2 px-1 w-10 border-r border-slate-600">10월</th>
+              <th class="py-2 px-1 w-10 border-r border-slate-600">11월</th>
+              <th class="py-2 px-1 w-10">12월</th>
+            </tr>
+          </thead>
+          <tbody id="annualTbody" class="divide-y divide-slate-200"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Non-Compliance (미실시·미흡) Auto-Extracted Comment Summary Section -->
+    <section class="mt-7 print-break-inside-avoid">
+      <div class="flex items-center justify-between mb-2 pb-1.5 border-b border-slate-300">
+        <h3 class="text-sm sm:text-base font-bold text-rose-800 flex items-center gap-1.5">
+          <i data-lucide="alert-triangle" class="w-4 h-4 text-rose-600 no-print"></i>
+          <span>미실시·미흡 항목 코멘트 및 개선 권고 요약 (<span id="issueMonthLabel">11월</span>)</span>
+        </h3>
+        <span id="issueCountBadge" class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-rose-100 text-rose-800">0건</span>
+      </div>
+
+      <div class="overflow-x-auto border border-slate-300 rounded-lg">
+        <table class="w-full text-left border-collapse text-xs sm:text-sm">
+          <thead>
+            <tr class="bg-slate-100 text-slate-800 text-center border-b border-slate-300">
+              <th class="py-2 px-2 w-10 border-r border-slate-300">No</th>
+              <th class="py-2 px-2 w-28 border-r border-slate-300">구분(장)</th>
+              <th class="py-2 px-2 w-36 border-r border-slate-300">점검 항목 (근거)</th>
+              <th class="py-2 px-2 w-20 border-r border-slate-300">평가</th>
+              <th class="py-2 px-3 border-r border-slate-300">코멘트 및 개선 권고사항</th>
+              <th class="py-2 px-2 w-28">개선기한/상태</th>
+            </tr>
+          </thead>
+          <tbody id="issueSummaryTbody" class="divide-y divide-slate-200"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Bottom Confirmation & Signature Boxes: 담당자 확인(서명) & 점검자 확인(서명) -->
+    <section class="mt-7 print-break-inside-avoid">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <!-- 담당자 확인(서명) -->
+        <div class="border border-slate-400 rounded-lg p-4 bg-slate-50/50">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-sm font-bold text-slate-900">사업장 담당자 확인 (서명)</span>
+            <button type="button" data-sig-target="manager" class="open-sig-btn no-print inline-flex items-center gap-1 px-2.5 py-1 rounded bg-white border border-slate-300 hover:bg-slate-100 text-xs font-medium text-slate-700">
+              <i data-lucide="pen-tool" class="w-3.5 h-3.5"></i> 전자서명
+            </button>
+          </div>
+          <p class="text-xs text-slate-600 mb-3">위 점검 결과 및 개선 권고사항을 확인하였습니다.</p>
+          <div class="flex items-center justify-between gap-3 pt-2 border-t border-slate-300">
+            <div class="text-xs text-slate-700">
+              성명: <span id="sigManagerNameDisplay" class="font-semibold text-slate-900">________________</span>
+            </div>
+            <div class="w-36 h-16 border border-dashed border-slate-300 rounded bg-white flex items-center justify-center overflow-hidden">
+              <img id="sigManagerImg" alt="담당자 서명" class="max-h-full max-w-full hidden" />
+              <span id="sigManagerPlaceholder" class="text-[11px] text-slate-400">(서명 또는 인)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 점검자 확인(서명) -->
+        <div class="border border-slate-400 rounded-lg p-4 bg-slate-50/50">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-sm font-bold text-slate-900">위탁기관 점검자 확인 (서명)</span>
+            <button type="button" data-sig-target="inspector" class="open-sig-btn no-print inline-flex items-center gap-1 px-2.5 py-1 rounded bg-white border border-slate-300 hover:bg-slate-100 text-xs font-medium text-slate-700">
+              <i data-lucide="pen-tool" class="w-3.5 h-3.5"></i> 전자서명
+            </button>
+          </div>
+          <p class="text-xs text-slate-600 mb-3">산업안전보건기준에 관한 규칙 제1편 총칙에 따라 점검·지도함.</p>
+          <div class="flex items-center justify-between gap-3 pt-2 border-t border-slate-300">
+            <div class="text-xs text-slate-700">
+              성명: <span id="sigInspectorNameDisplay" class="font-semibold text-slate-900">________________</span>
+            </div>
+            <div class="w-36 h-16 border border-dashed border-slate-300 rounded bg-white flex items-center justify-center overflow-hidden">
+              <img id="sigInspectorImg" alt="점검자 서명" class="max-h-full max-w-full hidden" />
+              <span id="sigInspectorPlaceholder" class="text-[11px] text-slate-400">(서명 또는 인)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Signature Pad Modal -->
+  <div id="sigModal" class="no-print fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl shadow-xl max-w-md w-full p-5">
+      <div class="flex items-center justify-between mb-3">
+        <h4 id="sigModalTitle" class="text-base font-bold text-slate-900">전자서명 입력</h4>
+        <button id="btnCloseSigModal" type="button" class="text-slate-400 hover:text-slate-700">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <div class="border-2 border-slate-300 rounded-lg bg-slate-50 overflow-hidden">
+        <canvas id="sigCanvas" width="400" height="180" class="sig-pad-canvas w-full h-44 bg-white"></canvas>
+      </div>
+      <div class="mt-3 flex items-center justify-between">
+        <button id="btnClearSig" type="button" class="px-3 py-1.5 rounded-lg border border-slate-300 text-xs font-medium text-slate-700 hover:bg-slate-100">
+          지우기
+        </button>
+        <div class="flex items-center gap-2">
+          <button id="btnRemoveSavedSig" type="button" class="px-3 py-1.5 rounded-lg border border-rose-200 text-xs font-medium text-rose-700 hover:bg-rose-50">
+            서명 삭제
+          </button>
+          <button id="btnSaveSig" type="button" class="px-4 py-1.5 rounded-lg bg-teal-600 text-white text-xs font-bold hover:bg-teal-500">
+            서명 적용
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toastEl" class="no-print fixed bottom-5 right-5 z-50 hidden bg-slate-900 text-white text-xs sm:text-sm px-4 py-2.5 rounded-lg shadow-lg"></div>
+
+  <script>
+    const CHECKLIST_ITEMS = [
+      { id: 1, chapter: '제2장 작업장', article: '제3조(전도의 방지)', title: '작업장 바닥 및 자재 넘어짐 방지', detail: '바닥 미끄럼·걸림 위험 제거 및 청결 유지, 제품·자재·부재 넘어짐 방지(지탱 등) 조치 여부' },
+      { id: 2, chapter: '제2장 작업장', article: '제4조, 제4조의2', title: '작업장 청결 및 분진 비산 방지', detail: '작업장 청결 유지, 지정 장소 외 폐기물 투기 금지, 분진 다량 발생 장소 살수 등 흩날림 방지 조치' },
+      { id: 3, chapter: '제2장 작업장', article: '제5조(오염된 바닥의 세척 등)', title: '오염 바닥·벽 세척 및 배수 구조', detail: '유해·부패·악취 물질 오염 우려 바닥·벽 수시 세척·소독, 다량 액체 사용 시 불침투성 재료 및 배수 구조 확보' },
+      { id: 4, chapter: '제2장 작업장', article: '제6조(오물의 처리 등)', title: '오물 처리 및 병원체 소독·소각 관리', detail: '오물 노출 방지 처리, 병원체 오염 우려 바닥·벽·용기 수시 소독, 폐기물 소각 시 다이옥신 등 보호구 지급·착용' },
+      { id: 5, chapter: '제2장 작업장', article: '제7조, 제8조(조도)', title: '작업장 채광·조명 및 작업면 조도 기준', detail: '명암 차이·눈부심 방지, 상시 작업장 조도 기준 준수(초정밀 750lux, 정밀 300lux, 보통 150lux, 기타 75lux 이상)' },
+      { id: 6, chapter: '제2장 작업장', article: '제9조, 제10조', title: '적정 작업높이 발판 및 창문 안전', detail: '신체조건에 맞는 작업발판 또는 설비 높이 조절, 창문 개폐 시 작업·통행 방해 방지 및 청소·개폐 보조도구 구비' },
+      { id: 7, chapter: '제2장 작업장', article: '제11조(작업장의 출입구)', title: '작업장 출입구 설치 및 안전 기준', detail: '용도·특성에 맞는 위치·수·크기, 쉬운 개폐, 하역운반기계 출입구 인접 보행자 출입구 분리 및 경보장치, 계단-출입구 1.2m 이격' },
+      { id: 8, chapter: '제2장 작업장', article: '제12조(동력문 설치 조건)', title: '동력문 비상정지 및 수동 개폐 구조', detail: '끼임 위험 2.5m 높이까지 비상정지장치(식별·조작 용이), 동력 차단 시 즉시 정지(방화문 제외), 수동 개폐 및 정지 가능 구조' },
+      { id: 9, chapter: '제2장 작업장', article: '제13조(안전난간)', title: '안전난간 구조 및 하중 기준', detail: '상부난간대(90~120cm)·중간난간대(120cm 이상 시 2단, 60cm 이하 간격)·발끝막이판(10cm 이상)·난간기둥, 지름 2.7cm 이상, 100kg 하중 견딤' },
+      { id: 10, chapter: '제2장 작업장', article: '제14조, 제15조', title: '낙하물 방지 및 투하설비·감시인', detail: '보호망·낙하물방지망(KS 기준, 높이 10m 이내·내민길이 2m 이상·각도 20~30도)·출입금지구역 설정, 3m 이상 투하 시 투하설비·감시인 배치' },
+      { id: 11, chapter: '제2장 작업장', article: '제16조(위험물 등의 보관)', title: '별표 1 위험물질 분리 보관', detail: '별표 1 위험물질을 작업장 외 별도 장소에 보관하고, 작업장 내부에는 작업에 필요한 최소량만 비치' },
+      { id: 12, chapter: '제2장 작업장', article: '제17조, 제18조', title: '위험물 작업장 비상구 설치 및 유지', detail: '출입구와 다른 방향 3m 이상 이격, 수평거리 50m 이하, 너비 0.75m·높이 1.5m 이상, 피난방향 열림, 비상구·비상통로 상시 이용 가능 유지' },
+      { id: 13, chapter: '제2장 작업장', article: '제19조(경보용 설비 등)', title: '옥내작업장 경보용 설비 설치', detail: '연면적 400㎡ 이상 또는 상시 50명 이상 옥내작업장에 비상 시 신속 알림용 경보설비·기구 설치 및 작동상태 유지' },
+      { id: 14, chapter: '제2장 작업장', article: '제20조(출입의 금지 등)', title: '위험작업·장소 울타리 및 출입금지', detail: '추락, 유압·체인 작동부, 양중기·차량계 하역운반기계 하부, 화재·폭발, 붕괴·굴착기 선회 등 위험구역 울타리 설치 및 출입금지' },
+      { id: 15, chapter: '제3장 통로', article: '제21조(통로의 조명)', title: '통로 채광·조명 기준(75럭스 이상)', detail: '근로자 통행 통로 75럭스 이상 채광·조명 유지(갱도·비상시 지하실 등은 휴대용 조명기구 지급)' },
+      { id: 16, chapter: '제3장 통로', article: '제22조(통로의 설치)', title: '안전한 통로 확보 및 장애물 제거', detail: '통로 설치·유지, 주요 부분 통로표시, 통로면 높이 2m 이내 장애물 제거(제거 곤란 시 안전조치)' },
+      { id: 17, chapter: '제3장 통로', article: '제23조(가설통로의 구조)', title: '가설통로 경사·미끄럼방지·난간', detail: '견고한 구조, 경사 30도 이하(15도 초과 시 미끄럼 방지), 추락위험 구간 안전난간, 수직갱 15m 이상(10m마다)·비계다리 8m 이상(7m마다) 계단참' },
+      { id: 18, chapter: '제3장 통로', article: '제24조(사다리식 통로 등)', title: '사다리식 통로 설치·고정 기준', detail: '손상·부식 없음, 발판 간격 일정·벽 이격 15cm 이상·폭 30cm 이상, 전도·미끄럼 방지, 상단 60cm 이상 돌출, 기울기 75도 이하(고정식 90도 이하·7m 이상 등받이울 등)' },
+      { id: 19, chapter: '제3장 통로', article: '제25조(갱내통로 등)', title: '갱내 권상장치 접촉 방지 격벽', detail: '갱내 통로·사다리식 통로에 권상장치 설치 시 접촉 위험 장소에 판자벽 등 격벽 설치' },
+      { id: 20, chapter: '제3장 통로', article: '제26조, 제27조', title: '계단 강도·폭 및 적치물 금지', detail: '하중 500kg/㎡·안전율 4 이상, 구멍 있는 바닥 공구 낙하 방지, 계단 폭 1m 이상(급유·보수·비상·나선형 제외), 계단 위 물건 적치 금지' },
+      { id: 21, chapter: '제3장 통로', article: '제28조~제30조', title: '계단참·천장높이 및 계단 난간', detail: '높이 3m 초과 계단 3m 이내마다 길이 1.2m 이상 계단참 설치, 바닥면 2m 이내 장애물 없음, 높이 1m 이상 계단 개방측 안전난간 설치' },
+      { id: 22, chapter: '제4장 보호구', article: '제31조(보호구 제한적 사용)', title: '설비개선 우선 및 보호구 제한 사용', detail: '보호구 미사용 상태에서도 보호되도록 설비개선 등 우선 조치하고, 곤란한 경우에만 제한적으로 적정 보호구 사용' },
+      { id: 23, chapter: '제4장 보호구', article: '제32조(보호구의 지급 등)', title: '작업조건별 보호구 지급 및 착용', detail: '안전모·안전대·안전화·보안경·보안면·절연용 보호구·방열복·방진마스크·방한장구·배달 이륜차/자전거 안전모 등 작업자 수 이상 지급 및 착용' },
+      { id: 24, chapter: '제4장 보호구', article: '제33조, 제34조', title: '보호구 점검·청결 및 개인 전용 지급', detail: '보호구 상시 점검·수리·교환 및 청결 유지, 방진마스크 필터 여분 상시 비치, 공동사용 감염 우려 시 개인 전용 보호구 지급' },
+      { id: 25, chapter: '제5장 관리감독자 등', article: '제35조(관리감독자 업무)', title: '관리감독자 직무 및 작업 전 점검', detail: '별표 2 유해·위험 방지 업무 수행 및 별표 3 작업 시작 전 점검 실시, 이상 발견 시 즉시 수리·조치' },
+      { id: 26, chapter: '제5장 관리감독자 등', article: '제36조(사용의 제한)', title: '미인증·부적합 기계·설비·보호구 사용 금지', detail: '방호조치 미실시 또는 안전인증·자율안전기준·안전검사기준 부적합 기계·기구·설비·방호장치·보호구 사용 금지' },
+      { id: 27, chapter: '제5장 관리감독자 등', article: '제37조(악천후 작업중지)', title: '악천후·강풍 시 작업 중지 기준', detail: '비·눈·바람 등 기상 불안정 시 작업 중지(타워크레인 설치·수리·점검·해체 10m/s 초과, 운전 15m/s 초과 시 중지)' },
+      { id: 28, chapter: '제5장 관리감독자 등', article: '제38조(사전조사·작업계획서)', title: '위험작업 사전조사 및 작업계획서 작성·주지', detail: '타워크레인·차량계 하역운반기계·건설기계·화학설비·전기작업(50V/250VA 초과)·굴착·해체·중량물 취급 등 13개 작업 시 사전조사 기록 및 작업계획서 작성·주지' },
+      { id: 29, chapter: '제5장 관리감독자 등', article: '제39조~제41조', title: '작업지휘자 지정·신호 준수·이탈 금지', detail: '작업계획서 대상 주요 작업 시 작업지휘자 지정·지휘, 양중기·유도자 배치·중량물 2인 이상 취급 신호 준수, 운전 중 운전위치 이탈 금지' },
+      { id: 30, chapter: '제6장 추락·붕괴 방지', article: '제42조(추락의 방지)', title: '작업발판·추락방호망 및 이동식 사다리 안전', detail: '추락 위험 장소 작업발판(곤란 시 KS 추락방호망/안전대), 이동식 사다리 7대 수칙(평탄 바닥, 고정/아웃트리거, 3.5m 이하, 최상부 금지, 2m 이상 안전모+안전대, 점검)' },
+      { id: 31, chapter: '제6장 추락·붕괴 방지', article: '제43조, 제44조', title: '개구부 방호조치 및 안전대 부착설비', detail: '개구부·통로 끝 안전난간·울타리·수직형 추락방망·덮개(뒤집힘 방지 및 어두운 곳 식별 표시), 높이 2m 이상 안전대 부착설비 설치 및 작업 전 점검' },
+      { id: 32, chapter: '제6장 추락·붕괴 방지', article: '제45조(지붕 위 위험 방지)', title: '지붕 위 추락·붕괴 위험 방지 조치', detail: '지붕 가장자리 안전난간(곤란 시 추락방호망/안전대), 채광창 견고한 덮개, 슬레이트 등 약한 지붕 폭 30cm 이상 발판 설치' },
+      { id: 33, chapter: '제6장 추락·붕괴 방지', article: '제46조~제49조', title: '승강설비·구명구·울타리 및 고소작업 조명', detail: '높이·깊이 2m 초과 승강설비, 수상작업 구명배·구명장구, 케틀·호퍼·피트 높이 90cm 이상 울타리 설치, 높이 2m 이상 작업 조명 유지' },
+      { id: 34, chapter: '제6장 추락·붕괴 방지', article: '제50조~제53조', title: '토사·구축물 붕괴 방지 및 안전성 평가', detail: '지반 안전경사·옹벽·배수 조치, 설계도서 준수, 침하·균열·지진·재사용·구조변경 시 안전성 평가 실시, 필요 시 계측장치 설치·확인' },
+      { id: 35, chapter: '제7장 비계', article: '제54조~제56조', title: '비계 재료·적재하중 및 작업발판 기준', detail: '변형·부식·손상 재료 사용 금지(강관 KS 이상), 최대적재하중 설정·초과 금지, 높이 2m 이상 발판 폭 40cm 이상·틈 3cm 이하·안전난간·지지물 2개 이상 고정' },
+      { id: 36, chapter: '제7장 비계', article: '제57조, 제58조', title: '비계 조립·해체 준수 및 작업 전 점검', detail: '달비계·5m 이상 비계 조립·해체 시 관리감독자 지휘·출입금지 게시·악천후 중지, 악천후 후 또는 조립·변경 후 작업 전 6대 항목 점검 및 즉시 보수' },
+      { id: 37, chapter: '제7장 비계', article: '제59조~제62조', title: '강관비계·강관틀비계 조립 및 식별', detail: '밑받침철물/깔판, 교차가새·벽이음(별표 5), 가공전로 접촉 방지, 강관 강도 색/기호 식별, 적재하중 400kg 이하, 강관틀비계 수평·수직 유지' },
+      { id: 38, chapter: '제7장 비계', article: '제63조~제66조의2', title: '달비계 로프·구명줄 및 사용 전 점검', detail: '곤돌라형·작업의자형 달비계 결함 로프/체인 사용 금지, 구명줄 별도 고정점 결속·안전대 체결, 모서리 보호덮개, 작업 전 점검·보수, 높은 디딤판 사용 금지' },
+      { id: 39, chapter: '제7장 비계', article: '제67조~제70조', title: '말비계·이동식비계·시스템비계 안전', detail: '말비계 미끄럼방지·기울기 75도 이하·양측 끝 작업금지, 이동식비계 브레이크·아웃트리거·최상부 난간·250kg 이하, 시스템비계 최대적재하중 표지판' },
+      { id: 40, chapter: '제8장 환기장치', article: '제72조, 제73조', title: '국소배기장치 후드 및 덕트 기준', detail: '유해물질 발산원별 포위식/부스식 우선 설치(외부식은 발산원 최단거리), 덕트 길이 최소·굴곡 최소·청소구 설치·이송속도 유지·기밀 유지' },
+      { id: 41, chapter: '제8장 환기장치', article: '제74조~제76조', title: '배풍기 위치·배기구·공기정화장치', detail: '정화 후 위치 배풍기 설치, 배기구 실외 개방(작업장 재유입 방지), 흡수·연소·집진 등 공기정화장치 설치' },
+      { id: 42, chapter: '제8장 환기장치', article: '제77조, 제78조', title: '전체환기장치 기준 및 작업 중 상시 가동', detail: '발산원 근접·재유입 방지 구조, 유해물질 취급 작업 중 국소배기·전체환기장치 상시 가동 및 방해기류 제거 조치' },
+      { id: 43, chapter: '제9장 휴게시설 등', article: '제79조, 제79조의2', title: '휴게시설 격리 설치 및 세척·탈의시설', detail: '휴식시간 이용 가능 휴게시설 설치 및 분진·유해물질 장소 격리, 환경미화·오물·폐기물·미생물 업무 시 세면·목욕·탈의·세탁시설 및 용품 구비' },
+      { id: 44, chapter: '제9장 휴게시설 등', article: '제80조, 제81조', title: '입식 근로자 의자 및 야간 수면장소', detail: '지속적 서서 일하는 근로자용 의자 비치, 야간작업 근로자 남녀 구분 수면장소 설치 및 침구 청소·세탁·소독 관리' },
+      { id: 45, chapter: '제9장 휴게시설 등', article: '제82조(구급용구)', title: '구급용구 비치·관리 및 사용법 주지', detail: '붕대·탈지면·핀셋·반창고·외상소독약·지혈대·부목·들것·(필요시) 화상약 비치, 장소·사용법 주지, 관리자 지정 및 청결 유지' },
+      { id: 46, chapter: '제10장 잔재물 등', article: '제83조~제85조', title: '유해가스 발산 억제·환기 및 잔재물 처리', detail: '가스·증기·분진 발산 억제/밀폐/환기장치, 1인당 공기 부피 10㎥ 이상·창문 1/20 이상, 10℃ 이하 환기 시 1m/s 이상 기류 차단, 잔재물 처리·위탁정보 제공' }
+    ];
+
+    const STORAGE_KEY = 'sch_oem_safety_checklist_v1';
+    const STATUS_OPTIONS = ['양호', '미흡', '미실시', '해당없음'];
+
+    let state = {
+      year: '2026',
+      month: '11',
+      viewMode: 'monthly',
+      chapterFilter: 'ALL',
+      statusFilter: 'ALL',
+      approval: { drafter: '', reviewer: '', approver: '' },
+      meta: {
+        companyName: '',
+        industryWorkers: '',
+        visitDate: '2026-11-22',
+        agencyName: '순천향대학교 서울병원 직업환경의학팀',
+        inspectorName: '',
+        managerName: ''
+      },
+      signatures: {
+        manager: '',
+        inspector: ''
+      },
+      records: {}
+    };
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          state = {
+            ...state,
+            ...parsed,
+            approval: { ...state.approval, ...(parsed.approval || {}) },
+            meta: { ...state.meta, ...(parsed.meta || {}) },
+            signatures: { ...state.signatures, ...(parsed.signatures || {}) },
+            records: parsed.records || {}
+          };
+        }
+      } catch (e) {
+        // Ignore storage errors in restricted environments
+      }
+    }
+
+    function saveState() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      } catch (e) {
+        // Ignore storage errors
+      }
+    }
+
+    function getMonthBucket(year = state.year, month = state.month) {
+      if (!state.records[year]) state.records[year] = {};
+      if (!state.records[year][month]) state.records[year][month] = {};
+      return state.records[year][month];
+    }
+
+    function getItemRecord(itemId, year = state.year, month = state.month) {
+      const bucket = getMonthBucket(year, month);
+      if (!bucket[itemId]) {
+        bucket[itemId] = { status: '', comment: '', deadline: '' };
+      }
+      return bucket[itemId];
+    }
+
+    function showToast(msg) {
+      const el = document.getElementById('toastEl');
+      el.textContent = msg;
+      el.classList.remove('hidden');
+      clearTimeout(window.__toastTimer);
+      window.__toastTimer = setTimeout(() => {
+        el.classList.add('hidden');
+      }, 2600);
+    }
+
+    function populateChapterFilter() {
+      const select = document.getElementById('chapterFilter');
+      const chapters = [...new Set(CHECKLIST_ITEMS.map(i => i.chapter))];
+      chapters.forEach(ch => {
+        const opt = document.createElement('option');
+        opt.value = ch;
+        opt.textContent = ch;
+        select.appendChild(opt);
+      });
+    }
+
+    function syncHeaderInputs() {
+      document.getElementById('yearSelect').value = state.year;
+      document.getElementById('monthSelect').value = state.month;
+      document.getElementById('docPeriodTitle').textContent = `(${state.year}년 ${state.month}월)`;
+      document.getElementById('summaryMonthLabel').textContent = `${state.month}월`;
+      document.getElementById('issueMonthLabel').textContent = `${state.month}월`;
+      document.getElementById('annualYearLabel').textContent = `${state.year}년`;
+
+      document.getElementById('appDrafter').value = state.approval.drafter || '';
+      document.getElementById('appReviewer').value = state.approval.reviewer || '';
+      document.getElementById('appApprover').value = state.approval.approver || '';
+
+      document.getElementById('metaCompany').value = state.meta.companyName || '';
+      document.getElementById('metaIndustry').value = state.meta.industryWorkers || '';
+      document.getElementById('metaVisitDate').value = state.meta.visitDate || '';
+      document.getElementById('metaAgency').value = state.meta.agencyName || '';
+      document.getElementById('metaInspector').value = state.meta.inspectorName || '';
+      document.getElementById('metaManager').value = state.meta.managerName || '';
+
+      document.getElementById('sigManagerNameDisplay').textContent = state.meta.managerName || '________________';
+      document.getElementById('sigInspectorNameDisplay').textContent = state.meta.inspectorName || '________________';
+
+      updateSignaturePreview('manager');
+      updateSignaturePreview('inspector');
+    }
+
+    function updateSignaturePreview(target) {
+      const img = document.getElementById(target === 'manager' ? 'sigManagerImg' : 'sigInspectorImg');
+      const placeholder = document.getElementById(target === 'manager' ? 'sigManagerPlaceholder' : 'sigInspectorPlaceholder');
+      const dataUrl = state.signatures[target];
+      if (dataUrl) {
+        img.src = dataUrl;
+        img.classList.remove('hidden');
+        placeholder.classList.add('hidden');
+      } else {
+        img.src = '';
+        img.classList.add('hidden');
+        placeholder.classList.remove('hidden');
+      }
+    }
+
+    function renderKPIs() {
+      let good = 0, weak = 0, missing = 0, na = 0;
+      CHECKLIST_ITEMS.forEach(item => {
+        const rec = getItemRecord(item.id);
+        if (rec.status === '양호') good++;
+        else if (rec.status === '미흡') weak++;
+        else if (rec.status === '미실시') missing++;
+        else if (rec.status === '해당없음') na++;
+      });
+      const applicable = good + weak + missing;
+      const rate = applicable > 0 ? ((good / applicable) * 100).toFixed(1) : '0.0';
+
+      document.getElementById('kpiTotal').textContent = CHECKLIST_ITEMS.length;
+      document.getElementById('kpiGood').textContent = good;
+      document.getElementById('kpiWeak').textContent = weak;
+      document.getElementById('kpiMissing').textContent = missing;
+      document.getElementById('kpiNA').textContent = na;
+      document.getElementById('kpiApplicable').textContent = applicable;
+      document.getElementById('kpiRate').textContent = `${rate}%`;
+    }
+
+    function getStatusButtonClasses(opt, isActive) {
+      if (!isActive) {
+        return 'bg-white text-slate-600 border-slate-300 hover:bg-slate-100';
+      }
+      if (opt === '양호') return 'bg-emerald-600 text-white border-emerald-700 font-bold shadow-xs';
+      if (opt === '미흡') return 'bg-amber-500 text-white border-amber-600 font-bold shadow-xs';
+      if (opt === '미실시') return 'bg-rose-600 text-white border-rose-700 font-bold shadow-xs';
+      return 'bg-slate-600 text-white border-slate-700 font-bold shadow-xs';
+    }
+
+    function renderMonthlyChecklist() {
+      const tbody = document.getElementById('checklistTbody');
+      tbody.innerHTML = '';
+
+      const filtered = CHECKLIST_ITEMS.filter(item => {
+        if (state.chapterFilter !== 'ALL' && item.chapter !== state.chapterFilter) return false;
+        const rec = getItemRecord(item.id);
+        if (state.statusFilter === 'ALL') return true;
+        if (state.statusFilter === 'ISSUE') return rec.status === '미실시' || rec.status === '미흡';
+        if (state.statusFilter === 'UNCHECKED') return !rec.status;
+        return rec.status === state.statusFilter;
+      });
+
+      if (filtered.length === 0) {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td colspan="7" class="py-8 text-center text-slate-500">조건에 해당하는 점검 항목이 없습니다.</td>`;
+        tbody.appendChild(tr);
+        return;
+      }
+
+      filtered.forEach(item => {
+        const rec = getItemRecord(item.id);
+        const isIssue = rec.status === '미실시' || rec.status === '미흡';
+        const tr = document.createElement('tr');
+        tr.className = isIssue ? 'bg-rose-50/40' : 'hover:bg-slate-50/70';
+
+        const buttonsHtml = STATUS_OPTIONS.map(opt => {
+          const active = rec.status === opt;
+          return `<button type="button" data-item-id="${item.id}" data-status="${opt}" class="status-btn px-2 py-1 text-[11px] rounded border ${getStatusButtonClasses(opt, active)}">${opt}</button>`;
+        }).join('');
+
+        tr.innerHTML = `
+          <td class="py-2.5 px-2 text-center font-semibold text-slate-700 border-r border-slate-200 align-top">${item.id}</td>
+          <td class="py-2.5 px-2 text-center text-slate-700 font-medium border-r border-slate-200 align-top">${item.chapter}</td>
+          <td class="py-2.5 px-2 text-slate-600 border-r border-slate-200 align-top text-[11px]">${item.article}</td>
+          <td class="py-2.5 px-3 border-r border-slate-200 align-top">
+            <div class="font-semibold text-slate-900">${item.title}</div>
+            <div class="text-[11px] text-slate-600 mt-0.5 leading-relaxed">${item.detail}</div>
+          </td>
+          <td class="py-2.5 px-2 border-r border-slate-200 align-top">
+            <div class="grid grid-cols-2 gap-1">${buttonsHtml}</div>
+          </td>
+          <td class="py-2 px-2 border-r border-slate-200 align-top">
+            <textarea data-comment-id="${item.id}" rows="2" placeholder="${isIssue ? '미실시·미흡 사유 및 개선 권고 입력 (필수)' : '특이사항 입력'}" class="w-full text-xs border ${isIssue ? 'border-rose-300 bg-white' : 'border-slate-200 bg-slate-50'} rounded p-1.5 focus:outline-none focus:ring-1 focus:ring-teal-500">${rec.comment || ''}</textarea>
+          </td>
+          <td class="py-2 px-2 align-top">
+            <input type="text" data-deadline-id="${item.id}" value="${rec.deadline || ''}" placeholder="예: 11/30 조치중" class="w-full text-xs border border-slate-200 rounded p-1.5 focus:outline-none focus:ring-1 focus:ring-teal-500" />
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function getShortBadge(status) {
+      if (status === '양호') return '<span class="inline-block px-1 py-0.5 rounded bg-emerald-100 text-emerald-800 font-bold">양호</span>';
+      if (status === '미흡') return '<span class="inline-block px-1 py-0.5 rounded bg-amber-100 text-amber-800 font-bold">미흡</span>';
+      if (status === '미실시') return '<span class="inline-block px-1 py-0.5 rounded bg-rose-100 text-rose-800 font-bold">미실시</span>';
+      if (status === '해당없음') return '<span class="inline-block px-1 py-0.5 rounded bg-slate-100 text-slate-500">제외</span>';
+      return '<span class="text-slate-300">-</span>';
+    }
+
+    function renderAnnualMatrix() {
+      const tbody = document.getElementById('annualTbody');
+      tbody.innerHTML = '';
+
+      CHECKLIST_ITEMS.forEach(item => {
+        if (state.chapterFilter !== 'ALL' && item.chapter !== state.chapterFilter) return;
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-50';
+
+        let monthCells = '';
+        for (let m = 1; m <= 12; m++) {
+          const rec = getItemRecord(item.id, state.year, String(m));
+          const highlight = String(m) === String(state.month) ? 'bg-teal-50/70' : '';
+          monthCells += `<td data-jump-month="${m}" class="py-1.5 px-1 text-center border-r border-slate-200 cursor-pointer hover:bg-teal-100/60 ${highlight}">${getShortBadge(rec.status)}</td>`;
+        }
+
+        tr.innerHTML = `
+          <td class="py-1.5 px-1.5 text-center font-semibold text-slate-700 border-r border-slate-200">${item.id}</td>
+          <td class="py-1.5 px-2 text-center text-slate-600 border-r border-slate-200">${item.chapter}</td>
+          <td class="py-1.5 px-2 font-medium text-slate-800 border-r border-slate-200">${item.title}</td>
+          ${monthCells}
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderIssueSummary() {
+      const tbody = document.getElementById('issueSummaryTbody');
+      tbody.innerHTML = '';
+
+      const issues = CHECKLIST_ITEMS.filter(item => {
+        const rec = getItemRecord(item.id);
+        return rec.status === '미실시' || rec.status === '미흡';
+      });
+
+      document.getElementById('issueCountBadge').textContent = `${issues.length}건`;
+
+      if (issues.length === 0) {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td colspan="6" class="py-5 text-center text-slate-500">선택된 월에 '미실시' 또는 '미흡'으로 평가된 항목이 없습니다.</td>`;
+        tbody.appendChild(tr);
+        return;
+      }
+
+      issues.forEach(item => {
+        const rec = getItemRecord(item.id);
+        const badgeCls = rec.status === '미실시' ? 'bg-rose-600 text-white' : 'bg-amber-500 text-white';
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="py-2 px-2 text-center font-semibold border-r border-slate-200">${item.id}</td>
+          <td class="py-2 px-2 text-center text-slate-700 border-r border-slate-200">${item.chapter}</td>
+          <td class="py-2 px-2 border-r border-slate-200">
+            <div class="font-semibold text-slate-900">${item.title}</div>
+            <div class="text-[11px] text-slate-500">${item.article}</div>
+          </td>
+          <td class="py-2 px-2 text-center border-r border-slate-200">
+            <span class="inline-block px-2 py-0.5 rounded text-[11px] font-bold ${badgeCls}">${rec.status}</span>
+          </td>
+          <td class="py-2 px-3 border-r border-slate-200 text-slate-800">${rec.comment ? rec.comment : '<span class="text-rose-500 italic">코멘트 미입력</span>'}</td>
+          <td class="py-2 px-2 text-center text-slate-700">${rec.deadline || '-'}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderAll() {
+      syncHeaderInputs();
+      renderKPIs();
+      if (state.viewMode === 'monthly') {
+        document.getElementById('monthlyViewSection').classList.remove('hidden');
+        document.getElementById('annualViewSection').classList.add('hidden');
+        document.getElementById('btnViewMonthly').className = 'px-2.5 py-1 rounded font-medium bg-teal-600 text-white';
+        document.getElementById('btnViewAnnual').className = 'px-2.5 py-1 rounded font-medium text-slate-300 hover:text-white';
+        renderMonthlyChecklist();
+      } else {
+        document.getElementById('monthlyViewSection').classList.add('hidden');
+        document.getElementById('annualViewSection').classList.remove('hidden');
+        document.getElementById('btnViewMonthly').className = 'px-2.5 py-1 rounded font-medium text-slate-300 hover:text-white';
+        document.getElementById('btnViewAnnual').className = 'px-2.5 py-1 rounded font-medium bg-teal-600 text-white';
+        renderAnnualMatrix();
+      }
+      renderIssueSummary();
+    }
+
+    // Event Delegation for Checklist Table
+    document.getElementById('checklistTbody').addEventListener('click', e => {
+      const btn = e.target.closest('button[data-item-id]');
+      if (!btn) return;
+      const itemId = Number(btn.dataset.itemId);
+      const nextStatus = btn.dataset.status;
+      const rec = getItemRecord(itemId);
+      rec.status = rec.status === nextStatus ? '' : nextStatus;
+      saveState();
+      renderKPIs();
+      renderMonthlyChecklist();
+      renderIssueSummary();
+    });
+
+    document.getElementById('checklistTbody').addEventListener('input', e => {
+      if (e.target.matches('textarea[data-comment-id]')) {
+        const itemId = Number(e.target.dataset.commentId);
+        const rec = getItemRecord(itemId);
+        rec.comment = e.target.value;
+        saveState();
+        renderIssueSummary();
+      } else if (e.target.matches('input[data-deadline-id]')) {
+        const itemId = Number(e.target.dataset.deadlineId);
+        const rec = getItemRecord(itemId);
+        rec.deadline = e.target.value;
+        saveState();
+        renderIssueSummary();
+      }
+    });
+
+    // Annual matrix month jump
+    document.getElementById('annualTbody').addEventListener('click', e => {
+      const td = e.target.closest('td[data-jump-month]');
+      if (!td) return;
+      state.month = td.dataset.jumpMonth;
+      state.viewMode = 'monthly';
+      saveState();
+      renderAll();
+    });
+
+    // Header & Filter Listeners
+    document.getElementById('yearSelect').addEventListener('change', e => {
+      state.year = e.target.value;
+      saveState();
+      renderAll();
+    });
+
+    document.getElementById('monthSelect').addEventListener('change', e => {
+      state.month = e.target.value;
+      saveState();
+      renderAll();
+    });
+
+    document.getElementById('btnViewMonthly').addEventListener('click', () => {
+      state.viewMode = 'monthly';
+      saveState();
+      renderAll();
+    });
+
+    document.getElementById('btnViewAnnual').addEventListener('click', () => {
+      state.viewMode = 'annual';
+      saveState();
+      renderAll();
+    });
+
+    document.getElementById('chapterFilter').addEventListener('change', e => {
+      state.chapterFilter = e.target.value;
+      renderAll();
+    });
+
+    document.getElementById('statusFilter').addEventListener('change', e => {
+      state.statusFilter = e.target.value;
+      renderAll();
+    });
+
+    document.getElementById('btnFillGood').addEventListener('click', () => {
+      let count = 0;
+      CHECKLIST_ITEMS.forEach(item => {
+        const rec = getItemRecord(item.id);
+        if (!rec.status) {
+          rec.status = '양호';
+          count++;
+        }
+      });
+      saveState();
+      renderAll();
+      showToast(`미입력 ${count}개 항목을 '양호'로 일괄 입력했습니다.`);
+    });
+
+    document.getElementById('btnClearMonth').addEventListener('click', () => {
+      state.records[state.year] = state.records[state.year] || {};
+      state.records[state.year][state.month] = {};
+      saveState();
+      renderAll();
+      showToast(`${state.year}년 ${state.month}월 점검 데이터를 초기화했습니다.`);
+    });
+
+    // Metadata & Approval Binding
+    const metaBindings = [
+      ['appDrafter', () => state.approval.drafter, v => state.approval.drafter = v],
+      ['appReviewer', () => state.approval.reviewer, v => state.approval.reviewer = v],
+      ['appApprover', () => state.approval.approver, v => state.approval.approver = v],
+      ['metaCompany', () => state.meta.companyName, v => state.meta.companyName = v],
+      ['metaIndustry', () => state.meta.industryWorkers, v => state.meta.industryWorkers = v],
+      ['metaVisitDate', () => state.meta.visitDate, v => state.meta.visitDate = v],
+      ['metaAgency', () => state.meta.agencyName, v => state.meta.agencyName = v],
+      ['metaInspector', () => state.meta.inspectorName, v => {
+        state.meta.inspectorName = v;
+        document.getElementById('sigInspectorNameDisplay').textContent = v || '________________';
+      }],
+      ['metaManager', () => state.meta.managerName, v => {
+        state.meta.managerName = v;
+        document.getElementById('sigManagerNameDisplay').textContent = v || '________________';
+      }]
+    ];
+
+    metaBindings.forEach(([id, _, setter]) => {
+      document.getElementById(id).addEventListener('input', e => {
+        setter(e.target.value);
+        saveState();
+      });
+    });
+
+    // Export / Import JSON
+    document.getElementById('btnExportJson').addEventListener('click', () => {
+      const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      const company = state.meta.companyName ? `_${state.meta.companyName}` : '';
+      a.href = url;
+      a.download = `안전보건점검_${state.year}_${state.month}월${company}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast('점검 데이터를 JSON 파일로 저장했습니다.');
+    });
+
+    document.getElementById('inputImportJson').addEventListener('change', e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = ev => {
+        try {
+          const parsed = JSON.parse(ev.target.result);
+          if (parsed && parsed.records) {
+            state = { ...state, ...parsed };
+            saveState();
+            renderAll();
+            showToast('백업 파일을 성공적으로 불러왔습니다.');
+          } else {
+            showToast('올바른 점검 백업 파일 형식이 아닙니다.');
+          }
+        } catch (err) {
+          showToast('파일을 읽는 중 오류가 발생했습니다.');
+        }
+      };
+      reader.readAsText(file);
+      e.target.value = '';
+    });
+
+    // Print
+    document.getElementById('btnPrint').addEventListener('click', () => {
+      window.print();
+    });
+
+    // Signature Pad Logic
+    let activeSigTarget = 'manager';
+    let isDrawing = false;
+    let hasDrawn = false;
+    const sigCanvas = document.getElementById('sigCanvas');
+    const sigCtx = sigCanvas.getContext('2d');
+    sigCtx.lineWidth = 2.5;
+    sigCtx.lineCap = 'round';
+    sigCtx.strokeStyle = '#0f172a';
+
+    function getCanvasPos(e) {
+      const rect = sigCanvas.getBoundingClientRect();
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+      return {
+        x: (clientX - rect.left) * (sigCanvas.width / rect.width),
+        y: (clientY - rect.top) * (sigCanvas.height / rect.height)
+      };
+    }
+
+    function startDraw(e) {
+      isDrawing = true;
+      hasDrawn = true;
+      const pos = getCanvasPos(e);
+      sigCtx.beginPath();
+      sigCtx.moveTo(pos.x, pos.y);
+    }
+
+    function moveDraw(e) {
+      if (!isDrawing) return;
+      e.preventDefault();
+      const pos = getCanvasPos(e);
+      sigCtx.lineTo(pos.x, pos.y);
+      sigCtx.stroke();
+    }
+
+    function endDraw() {
+      isDrawing = false;
+    }
+
+    sigCanvas.addEventListener('mousedown', startDraw);
+    sigCanvas.addEventListener('mousemove', moveDraw);
+    window.addEventListener('mouseup', endDraw);
+    sigCanvas.addEventListener('touchstart', startDraw, { passive: false });
+    sigCanvas.addEventListener('touchmove', moveDraw, { passive: false });
+    sigCanvas.addEventListener('touchend', endDraw);
+
+    document.querySelectorAll('.open-sig-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        activeSigTarget = btn.dataset.sigTarget;
+        document.getElementById('sigModalTitle').textContent =
+          activeSigTarget === 'manager' ? '사업장 담당자 전자서명' : '위탁기관 점검자 전자서명';
+        sigCtx.clearRect(0, 0, sigCanvas.width, sigCanvas.height);
+        hasDrawn = false;
+        document.getElementById('sigModal').classList.remove('hidden');
+      });
+    });
+
+    document.getElementById('btnClearSig').addEventListener('click', () => {
+      sigCtx.clearRect(0, 0, sigCanvas.width, sigCanvas.height);
+      hasDrawn = false;
+    });
+
+    document.getElementById('btnSaveSig').addEventListener('click', () => {
+      if (!hasDrawn) {
+        showToast('서명을 먼저 그려주세요.');
+        return;
+      }
+      state.signatures[activeSigTarget] = sigCanvas.toDataURL('image/png');
+      saveState();
+      updateSignaturePreview(activeSigTarget);
+      document.getElementById('sigModal').classList.add('hidden');
+      showToast('서명이 적용되었습니다.');
+    });
+
+    document.getElementById('btnRemoveSavedSig').addEventListener('click', () => {
+      state.signatures[activeSigTarget] = '';
+      saveState();
+      updateSignaturePreview(activeSigTarget);
+      document.getElementById('sigModal').classList.add('hidden');
+      showToast('저장된 서명을 삭제했습니다.');
+    });
+
+    document.getElementById('btnCloseSigModal').addEventListener('click', () => {
+      document.getElementById('sigModal').classList.add('hidden');
+    });
+
+    // Init
+    loadState();
+    populateChapterFilter();
+    renderAll();
+    if (window.lucide) {
+      window.lucide.createIcons();
+    }
+  </script>
+</body>
+</html>
