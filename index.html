@@ -122,15 +122,17 @@
       const btn = document.getElementById('accessSubmitBtn');
       const err = document.getElementById('accessErrorMsg');
       const ref = (document.referrer || '').toLowerCase();
-      const allowedFromBlog = ref.includes('blog.naver.com/hjc1472') || ref.includes('m.blog.naver.com/hjc1472');
+      const params = new URLSearchParams(window.location.search);
+      const allowedFromBlog = ref.includes('blog.naver.com/hjc1472') || ref.includes('m.blog.naver.com/hjc1472') || params.get('from') === 'blog_app';
+      window.__isChecklistUnlocked = allowedFromBlog;
 
       if (allowedFromBlog) {
         overlay.classList.add('hidden');
-        return;
       }
 
       function tryUnlock() {
         if ((input.value || '').trim() === '1111') {
+          window.__isChecklistUnlocked = true;
           overlay.classList.add('hidden');
           err.classList.add('hidden');
         } else {
@@ -149,6 +151,21 @@
       });
     })();
   </script>
+
+  <!-- In-App Browser Notice Banner (Naver / KakaoTalk / etc.) -->
+  <div id="inAppBanner" class="no-print hidden bg-amber-50 border-b border-amber-300 text-amber-950 px-3 py-2.5">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2 text-xs">
+      <div class="flex items-center gap-2">
+        <i data-lucide="info" class="w-4 h-4 text-amber-700 shrink-0"></i>
+        <span id="inAppNoticeText" class="font-medium leading-snug">네이버·카톡 앱 내에서는 PDF 출력 및 백업 파일 저장이 제한될 수 있습니다.</span>
+      </div>
+      <div class="flex items-center gap-2 shrink-0">
+        <button id="btnOpenExternalChrome" type="button" class="hidden px-3 py-1.5 rounded-md bg-amber-600 hover:bg-amber-500 text-white font-bold shadow-xs">Chrome으로 열기</button>
+        <button id="btnCopyPageUrl" type="button" class="hidden px-3 py-1.5 rounded-md bg-white border border-amber-400 hover:bg-amber-100 text-amber-900 font-semibold">주소 복사</button>
+        <button id="btnDismissInApp" type="button" class="px-2 py-1 text-amber-700 hover:text-amber-950 font-semibold">닫기</button>
+      </div>
+    </div>
+  </div>
 
   <!-- Top Control Bar (Hidden on Print) -->
   <header class="no-print sticky top-0 z-30 bg-slate-900 text-white shadow-md">
@@ -2283,6 +2300,69 @@ ${item.detail}`,
       getMonthGuidance().generalOpinion = e.target.value;
       saveState();
     });
+
+    // ================= In-App Browser Detection (Naver / KakaoTalk) =================
+    (function initInAppDetector() {
+      const ua = navigator.userAgent || '';
+      const isInApp = /NAVER|KAKAOTALK|Instagram|FBAN|FBAV|Line/i.test(ua);
+      if (!isInApp) return;
+
+      const banner = document.getElementById('inAppBanner');
+      const noticeText = document.getElementById('inAppNoticeText');
+      const btnChrome = document.getElementById('btnOpenExternalChrome');
+      const btnCopy = document.getElementById('btnCopyPageUrl');
+      const btnDismiss = document.getElementById('btnDismissInApp');
+
+      const isAndroid = /Android/i.test(ua);
+      const isIOS = /iPhone|iPad|iPod/i.test(ua);
+
+      banner.classList.remove('hidden');
+
+      if (isAndroid) {
+        noticeText.textContent = '네이버·카톡 앱 내에서는 PDF 저장 및 백업이 제한될 수 있습니다. Chrome으로 열어 이용해 주세요.';
+        btnChrome.classList.remove('hidden');
+        btnChrome.addEventListener('click', () => {
+          const base = window.location.href.split('#')[0];
+          const sep = base.includes('?') ? '&' : '?';
+          const targetUrl = window.__isChecklistUnlocked && !base.includes('from=blog_app')
+            ? `${base}${sep}from=blog_app`
+            : base;
+          const stripped = targetUrl.replace(/^https?:\/\//i, '');
+          window.location.href = `intent://${stripped}#Intent;scheme=https;package=com.android.chrome;end`;
+        });
+      } else if (isIOS) {
+        noticeText.textContent = '네이버·카톡 앱 내에서는 PDF 저장이 제한될 수 있습니다. 메뉴(···)에서 "Safari로 열기"를 선택해 주세요.';
+        btnCopy.classList.remove('hidden');
+        btnCopy.addEventListener('click', () => {
+          const url = window.location.href;
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(url).then(() => showToast('주소를 복사했습니다. Safari에 붙여넣어 열어주세요.')).catch(() => fallbackCopy(url));
+          } else {
+            fallbackCopy(url);
+          }
+        });
+      }
+
+      function fallbackCopy(text) {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        try {
+          document.execCommand('copy');
+          showToast('주소를 복사했습니다. 브라우저에 붙여넣어 열어주세요.');
+        } catch (e) {
+          showToast('주소 복사에 실패했습니다. 상단 주소창을 복사해 주세요.');
+        }
+        document.body.removeChild(ta);
+      }
+
+      btnDismiss.addEventListener('click', () => {
+        banner.classList.add('hidden');
+      });
+    })();
 
     // Init
     loadState();
