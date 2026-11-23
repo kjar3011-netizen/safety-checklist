@@ -68,27 +68,42 @@
         padding: 4px 5px !important;
       }
 
-      /* Hide all placeholder hints on print so empty fields print cleanly as blank space */
+      /* Hide all placeholder hints on print across all engines */
       input::placeholder,
-      textarea::placeholder {
+      textarea::placeholder,
+      input::-webkit-input-placeholder,
+      textarea::-webkit-input-placeholder {
         color: transparent !important;
+        -webkit-text-fill-color: transparent !important;
         opacity: 0 !important;
       }
 
-      /* Arrange the 4 evaluation boxes in a 2x2 grid on print so text never overflows */
+      /* Arrange the 4 evaluation boxes in a clean 2x2 grid on print */
+      #monthlyViewSection th:nth-child(5),
+      #checklistTbody td:nth-child(5),
+      #customItemsSection th:nth-child(4),
+      #customChecklistTbody td:nth-child(4) {
+        width: 116px !important;
+        min-width: 116px !important;
+      }
+
       #checklistTbody td:nth-child(5) .grid,
       #customChecklistTbody td:nth-child(4) .grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        display: grid !important;
+        grid-template-columns: repeat(2, 50px) !important;
         gap: 3px !important;
-        max-width: 112px !important;
+        width: 103px !important;
+        max-width: 103px !important;
+        margin: 0 auto !important;
       }
 
       #checklistTbody .status-btn,
       #customChecklistTbody .status-btn {
         font-size: 8.5px !important;
         aspect-ratio: auto !important;
+        width: 50px !important;
         height: 20px !important;
-        padding: 2px 4px !important;
+        padding: 1px 2px !important;
         white-space: nowrap !important;
       }
 
@@ -1674,6 +1689,12 @@
 
     // Selective Print: hide uninspected chapters during print when printOnlyInspected is enabled
     function applyPrintFilter() {
+      document.querySelectorAll('input[placeholder], textarea[placeholder]').forEach(el => {
+        if (!el.dataset.savedPlaceholder) {
+          el.dataset.savedPlaceholder = el.getAttribute('placeholder') || '';
+        }
+        el.setAttribute('placeholder', '');
+      });
       const rows = document.querySelectorAll('#checklistTbody tr[data-chapter-key]');
       if (!state.printOnlyInspected) {
         rows.forEach(r => r.classList.remove('hidden'));
@@ -1698,6 +1719,9 @@
     }
 
     function restoreAfterPrint() {
+      document.querySelectorAll('input[data-saved-placeholder], textarea[data-saved-placeholder]').forEach(el => {
+        el.setAttribute('placeholder', el.dataset.savedPlaceholder);
+      });
       document.querySelectorAll('#checklistTbody tr[data-chapter-key]').forEach(r => {
         r.classList.remove('hidden');
       });
