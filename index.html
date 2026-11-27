@@ -283,6 +283,9 @@
           <i data-lucide="upload" class="w-3.5 h-3.5"></i> 불러오기
           <input id="inputImportJson" type="file" accept=".json" class="hidden" />
         </label>
+        <button id="btnResetAll" type="button" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-rose-700 hover:bg-rose-600 text-white text-xs font-medium transition">
+          <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> 초기화
+        </button>
         <button id="btnPrint" type="button" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-teal-500 hover:bg-teal-400 text-slate-950 text-xs sm:text-sm font-bold shadow transition">
           <i data-lucide="printer" class="w-4 h-4"></i> 인쇄 / PDF
         </button>
@@ -792,6 +795,21 @@
             코멘트에 반영 후 닫기
           </button>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Full Reset Confirmation Modal -->
+  <div id="resetConfirmModal" class="no-print fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl shadow-xl max-w-sm w-full p-5">
+      <h4 class="text-base font-bold text-slate-900">새 사업장(전체 초기화)</h4>
+      <p class="text-xs text-slate-600 mt-2 leading-relaxed">
+        현재 입력된 사업장 정보, 결재·서명, 월별 판정, 추가 항목, 종합 의견, 첨부 사진이 모두 삭제됩니다.<br/>
+        기록을 남기려면 먼저 <strong>백업</strong> 또는 <strong>인쇄 / PDF</strong>를 진행하세요.
+      </p>
+      <div class="mt-4 flex items-center justify-end gap-2">
+        <button id="btnCancelReset" type="button" class="px-3 py-1.5 rounded-lg border border-slate-300 text-xs font-medium text-slate-700 hover:bg-slate-100">취소</button>
+        <button id="btnConfirmReset" type="button" class="px-4 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold">전체 초기화</button>
       </div>
     </div>
   </div>
@@ -2550,6 +2568,44 @@ ${item.detail}`,
         banner.classList.add('hidden');
       });
     })();
+
+    // Full Reset Handlers
+    document.getElementById('btnResetAll').addEventListener('click', () => {
+      document.getElementById('resetConfirmModal').classList.remove('hidden');
+    });
+    document.getElementById('btnCancelReset').addEventListener('click', () => {
+      document.getElementById('resetConfirmModal').classList.add('hidden');
+    });
+    document.getElementById('btnConfirmReset').addEventListener('click', () => {
+      try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
+      state = {
+        year: '2026',
+        month: String(new Date().getMonth() + 1),
+        viewMode: 'monthly',
+        activePartTab: 'ALL',
+        chapterFilter: 'ALL',
+        statusFilter: 'ALL',
+        selectorCollapsed: false,
+        printOnlyInspected: true,
+        enabledChapters: getDefaultEnabledChapters(),
+        approval: { drafter: '', reviewer: '', approver: '' },
+        meta: {
+          companyName: '', industryWorkers: '', visitDate: '', agencyName: '',
+          inspectorName: '', managerName: '', sigManagerTitle: '', sigManagerName: '',
+          sigInspectorTitle: '', sigInspectorName: ''
+        },
+        signatures: { manager: '', inspector: '' },
+        printIncludePhotos: true,
+        records: {},
+        customItems: {},
+        guidance: {},
+        photos: {}
+      };
+      saveState();
+      renderAll();
+      document.getElementById('resetConfirmModal').classList.add('hidden');
+      showToast('새 사업장 점검을 위해 전체 내용을 초기화했습니다.');
+    });
 
     // Init
     loadState();
