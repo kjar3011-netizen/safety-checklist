@@ -2171,22 +2171,96 @@
       }
     };
 
+    const ACTION_RECOMMENDATIONS = {
+      '초정밀작업(750lux 이상) 조도 미달': '국부조명 증설 또는 등기구 청소·교체를 통해 작업면 조도 750lux 이상 확보',
+      '정밀작업(300lux 이상) 조도 미달': '보조조명 설치 및 조도 측정을 통해 작업면 조도 300lux 이상 유지',
+      '보통작업(150lux 이상) 조도 미달': '작업장 조명 추가 설치·정비를 통해 작업면 조도 150lux 이상 유지',
+      '그 밖의 작업(75lux 이상) 조도 미달': '작업장 및 통로 조명 보강으로 최소 75lux 이상 조도 확보',
+      '명암 차이 과다 또는 눈부심 방지 조치 미흡': '차광판·루버 설치 및 간접조명 배치로 눈부심 및 명암 차이 최소화',
+      '2.5m 이하 구간 끼임 방지 비상정지장치 미설치/고장': '바닥면 2.5m 이하 끼임 위험 구간에 즉시 작동하는 비상정지장치를 설치·수리',
+      '비상정지장치 식별 표지 불량 또는 조작 어려움': '비상정지 스위치 위치 적색 표지 부착 및 근로자 누구나 즉시 조작 가능하도록 정비',
+      '동력 차단 시 즉시 정지 기능 불량': '동력 차단 시 문이 즉시 정지되도록 제어회로 및 브레이크 장치 정비',
+      '정전 등 비상 시 수동 개폐 불가(별도 수동문 미비)': '수동 개폐 핸들·레버 점검 또는 인접 위치에 별도 보행자용 수동 출입문 설치',
+      '상부 난간대 높이(90cm 이상) 미달 또는 흔들림': '상부 난간대 높이를 바닥면 기준 90~120cm로 보강하고 지주 고정 상태 정비',
+      '중간 난간대 미설치 또는 간격(60cm 이하) 초과': '상하 간격이 60cm 이하가 되도록 중간 난간대 추가 설치(120cm 이상 시 2단 이상)',
+      '발끝막이판(10cm 이상) 미설치': '공구·자재 낙하 방지를 위해 높이 10cm 이상의 발끝막이판 설치',
+      '난간대 규격(지름 2.7cm 이상)·고정 강도(100kg) 미흡': '지름 2.7cm 이상 금속제 파이프 등 100kg 이상 하중을 견디는 규격 자재로 교체·보강',
+      '비상구 미설치 또는 출입구와 3m 이상 미이격': '출입구와 다른 방향 3m 이상 이격 및 수평거리 50m 이하 기준에 맞게 비상구 확보',
+      '비상구 규격(너비 0.75m·높이 1.5m 이상) 미달': '비상구 유효 개구부 너비 0.75m·높이 1.5m 이상 확보 및 장애물 제거',
+      '비상구 문이 피난 방향으로 열리지 않거나 잠겨 있음': '비상구 문을 피난 방향(바깥쪽)으로 열리도록 개선하고 실내에서 상시 개방 가능하게 유지',
+      '비상구·비상통로 앞 물건 적치로 대피 방해': '비상구 및 비상통로 앞 적치물 즉시 제거 후 바닥 구획선·적치금지 표지 부착',
+      '사다리 손상·부식 또는 발판 간격 불균일': '손상·부식된 사다리 즉시 사용 중지·폐기하고 정상 규격 사다리로 교체',
+      '발판-벽 간격(15cm 이상) 또는 폭(30cm 이상) 미달': '사다리 폭 30cm 이상·벽면 이격 15cm 이상 기준에 맞게 재설치',
+      '넘어짐·미끄럼 방지 조치 미흡': '사다리 하단 미끄럼방지 고무패드 점검 및 상·하부 고정 장치 보강',
+      '상단 60cm 이상 미돌출': '사다리 상단이 걸쳐놓은 지점보다 60cm 이상 돌출되도록 교체·조정',
+      '고정식 7m 이상 등받이울(2.5m~) 또는 추락방지시스템 미설치': '높이 7m 이상 고정식 사다리에 2.5m 지점부터 등받이울 또는 추락방지시스템 설치',
+      '접이식 사다리 펼침/접힘 방지 철물 불량': '접이식 사다리 벌어짐·접힘 방지 고정 철물(버팀대) 수리 또는 교체',
+      '작업 인원수 대비 보호구 수량 부족': '해당 작업 근로자 수 이상으로 적정 보호구 추가 구매·지급',
+      '작업 유해·위험요인에 맞지 않는 보호구 지급': '안전인증(KCs)을 받은 작업 유해인자별 적정 등급 보호구로 교체 지급',
+      '근로자 보호구 미착용 또는 착용 관리 미흡': '보호구 착용 교육 실시 및 관리감독자의 작업 전·중 착용 상태 상시 확인',
+      '배달·이동 이륜차/자전거 안전모 미지급': '도로교통법 안전기준에 적합한 승차용 안전모 지급 및 착용 관리',
+      '사전조사 미실시 또는 조사 결과 기록·보존 누락': '위험작업 착수 전 별표 4 항목 사전조사를 실시하고 조사 결과를 서면 기록·보존',
+      '해당 위험작업 작업계획서 미작성(또는 최신화 누락)': '작업 방법·인력·장비·안전대책이 포함된 작업계획서를 작성·비치',
+      '작성된 작업계획서 내용 근로자 주지(교육) 미실시': '작업 시작 전 작업계획서 핵심 내용을 해당 근로자에게 교육·주지(서명 기록)',
+      '2m 이상 고소작업 시 작업발판/안전난간/안전대 미조치': '고소작업 시 작업발판·안전난간을 우선 설치하고 곤란 시 안전대 부착설비 및 안전대 착용 의무화',
+      '이동식 사다리 2인 1조 지지 또는 아웃트리거 미조치': '2인 1조 사다리 지지 또는 아웃트리거 설치 후 작업하도록 작업절차 준수',
+      '이동식 사다리 최상부·하단 디딤대 올라서서 작업': '최상부 발판 및 하단 디딤대 작업 금지 교육 및 적정 높이 사다리(또는 고소작업대) 사용',
+      '높이 2m 이상 이동식 사다리 작업 시 안전모·안전대 미착용': '높이 2m 이상 사다리 작업 시 안전모 및 안전대(부착설비 체결) 동시 착용 철저',
+      '높이 3.5m 초과 장소에서 이동식 사다리 사용': '바닥면 높이 3.5m 초과 장소는 사다리 사용을 금지하고 이동식비계·고소작업대 등 사용',
+      '필수 구급용구(붕대·탈지면·핀셋·반창고·소독약·지혈대·부목·들것) 일부 누락': '누락된 필수 구급용구(붕대·소독약·지혈대·부목·들것 등) 즉시 보충 비치',
+      '비치 의약품(소독약·화상약 등) 유효기간 경과': '유효기간 경과 의약품 폐기 후 신규 제품으로 교체 및 월 1회 정기 점검',
+      '구급용구 비치 장소·사용방법 근로자 주지 미흡': '구급함 위치 표지 부착 및 응급처치·사용방법 근로자 안내·게시',
+      '구급용구 관리자 미지정 또는 청결 관리 불량': '구급용구 관리책임자 지정 표기 및 청결 상태 수시 점검',
+      '화재위험작업 서면 게시(작업허가/점검표) 누락': '화재위험작업 허가서·안전조치 내용을 작업장 출입구 등 보기 쉬운 곳에 서면 게시',
+      '성능인증 용접방화포·비산방지덮개 미설치': '성능인증을 받은 용접방화포 설치 및 가연물 이격·격리 조치',
+      '작업반경 11m 이내 가연물 장소 화재감시자 미배치': '작업반경 11m 이내 가연물 존재 장소에 전담 화재감시자 지정·배치',
+      '화재감시자 대피용 방연장비(마스크·확성기·조명) 미지급': '화재감시자에게 화재대피용 방연마스크·확성기·휴대용 조명기구 지급',
+      '밀폐공간 작업 프로그램 미수립': '유해·위험 파악, 작업허가, 측정·환기, 비상연락을 포함한 밀폐공간 작업 프로그램 수립·시행',
+      '작업 전 산소·유해가스 농도 측정 미실시 또는 기록 누락': '작업 전·중 산소(18~23.5%) 및 유해가스 농도 측정 후 기록·보존(측정기 교정 확인)',
+      '작업 중 강제 환기장치 미가동': '밀폐공간 출입 전 및 작업 중 급·배기 송풍기를 상시 가동해 적정공기 유지',
+      '외부 감시인 미배치 및 인원 점검 누락': '밀폐공간 외부에 전담 감시인을 상시 배치하고 출입 인원 점검표 기록',
+      '공기호흡기·구명줄 등 긴급구조·대피용 기구 미비치': '비상 시 구조용 공기호흡기(또는 송기마스크), 구명줄, 삼각대 등 즉시 사용 가능하게 비치',
+      '3년 주기(또는 신설 1년 이내) 근골격계 유해요인 조사 미실시': '부담작업 유해요인 조사를 즉시 실시(근로자 참여)하고 개선계획 수립·시행',
+      '유해요인 조사 결과 근로자 통지 및 사후조치 누락': '유해요인 조사 결과를 해당 근로자에게 통지하고 도출된 작업환경 개선대책 이행',
+      '근골격계 증상 호소자 의학적 상담·작업전환 조치 미흡': '증상 호소 근로자에 대한 의학적 상담·치료 연계 및 작업전환·보조설비 지원',
+      '모니터 위치·조명 눈부심 또는 반사 방지 미흡': '모니터 각도·위치 조절 및 창문 블라인드·차광장치 설치로 눈부심 방지',
+      '높낮이 조절 의자·보조도구(손목/발받침대) 미비': '높낮이 조절 가능한 의자 및 손목·발받침대 등 VDT 작업 보조도구 지급',
+      '연속 VDT 작업 중 적정 휴식시간 부여 및 스트레칭 지도 미흡': '1시간 연속 작업 시 적정 휴식시간 부여 및 목·어깨·손목 스트레칭 안내',
+      '장시간·야간·교대근무자 직무스트레스 요인 평가 미실시': '직무스트레스 요인 평가(KOSHA GUIDE 등) 실시 및 고위험군 건강상담 연계',
+      '고객응대(감정노동) 근로자 건강장해 예방 매뉴얼·상담 미흡': '고객응대업무 매뉴얼 비치, 예방문구 게시 및 고충처리·심리상담 지원체계 운영',
+      '직무스트레스 예방 및 완화 프로그램 운영 부족': '작업휴식 배분, 소통 창구 운영 및 스트레스 완화 프로그램(교육·상담) 실시'
+    };
+
+    function buildDefaultAction(partText) {
+      return `${partText} 기준을 충족하도록 설비 보완, 작업절차 정비 및 근로자 교육을 즉시 실시`;
+    }
+
     function getItemDetailSpec(item) {
       if (SUB_CHECKS_MAP[item.id]) {
-        return SUB_CHECKS_MAP[item.id];
+        const base = SUB_CHECKS_MAP[item.id];
+        return {
+          fullText: base.fullText,
+          checks: base.checks.map(chk => ({
+            issue: chk,
+            action: ACTION_RECOMMENDATIONS[chk] || buildDefaultAction(chk.replace(/\s*(미흡|미실시|미달|누락|부족|불량).*$/, ''))
+          }))
+        };
       }
       const parts = item.detail
         .split(/[,·]/)
         .map(s => s.trim())
         .filter(s => s.length >= 4);
       const checks = parts.length > 0
-        ? parts.map(p => `${p} 기준 미흡/미실시`)
-        : [`${item.title} 기준 미흡/미실시`];
+        ? parts.map(p => ({
+            issue: `${p} 기준 미흡/미실시`,
+            action: buildDefaultAction(p)
+          }))
+        : [{
+            issue: `${item.title} 기준 미흡/미실시`,
+            action: buildDefaultAction(item.title)
+          }];
       return {
-        fullText: `${item.article}
-
-[세부 점검 기준]
-${item.detail}`,
+        fullText: `${item.article}\n\n[세부 점검 기준]\n${item.detail}`,
         checks
       };
     }
@@ -2200,13 +2274,23 @@ ${item.detail}`,
       });
     }
 
+    function formatSubCheckComment(item, selectedIssues) {
+      if (!selectedIssues || selectedIssues.length === 0) return '';
+      const spec = getItemDetailSpec(item);
+      const actionMap = {};
+      spec.checks.forEach(c => { actionMap[c.issue] = c.action; });
+      const actions = selectedIssues.map(iss => actionMap[iss] || buildDefaultAction(iss));
+      return `[지적(${item.article})] ${selectedIssues.join(' / ')}\n[개선권고] ${actions.join(' / ')}`;
+    }
+
     function updateModalPreview(item, rec) {
       const selected = rec.subIssues || [];
       const preview = document.getElementById('detailCommentPreview');
       if (selected.length === 0) {
         preview.textContent = '체크된 지적사항이 없습니다.';
       } else {
-        preview.textContent = `[${item.article}] ` + selected.join(' / ');
+        preview.classList.add('whitespace-pre-line');
+        preview.textContent = formatSubCheckComment(item, selected);
       }
     }
 
@@ -2225,13 +2309,16 @@ ${item.detail}`,
 
       const listEl = document.getElementById('detailSubChecksList');
       listEl.innerHTML = '';
-      spec.checks.forEach((chk, idx) => {
-        const checked = rec.subIssues.includes(chk) ? 'checked' : '';
+      spec.checks.forEach((chkObj, idx) => {
+        const checked = rec.subIssues.includes(chkObj.issue) ? 'checked' : '';
         const label = document.createElement('label');
         label.className = 'flex items-start gap-2.5 p-2.5 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer';
         label.innerHTML = `
-          <input type="checkbox" data-sub-idx="${idx}" value="${chk.replace(/"/g, '&quot;')}" class="sub-check-input mt-0.5 w-4 h-4 accent-rose-600 rounded shrink-0" ${checked} />
-          <span class="text-xs text-slate-800 leading-snug">${chk}</span>
+          <input type="checkbox" data-sub-idx="${idx}" value="${chkObj.issue.replace(/"/g, '&quot;')}" class="sub-check-input mt-0.5 w-4 h-4 accent-rose-600 rounded shrink-0" ${checked} />
+          <div class="text-xs leading-snug">
+            <div class="font-semibold text-slate-800">${chkObj.issue}</div>
+            <div class="text-[11px] text-teal-700 mt-0.5">↳ 개선권고: ${chkObj.action}</div>
+          </div>
         `;
         listEl.appendChild(label);
       });
@@ -2293,8 +2380,7 @@ ${item.detail}`,
         const rec = getItemRecord(activeDetailItemId);
         const selected = rec.subIssues || [];
         if (selected.length > 0) {
-          const generated = `[${item.article}] ` + selected.join(' / ');
-          rec.comment = generated;
+          rec.comment = formatSubCheckComment(item, selected);
           if (!rec.status || rec.status === '양호') {
             rec.status = '미흡';
           }
