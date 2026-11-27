@@ -2587,7 +2587,7 @@ ${item.detail}`,
         statusFilter: 'ALL',
         selectorCollapsed: false,
         printOnlyInspected: true,
-        enabledChapters: getDefaultEnabledChapters(),
+        enabledChapters: (() => { const m = {}; PART_ORDER.forEach(p => PART_CHAPTERS[p].forEach(ch => { m[p + "::" + ch] = false; })); return m; })(),
         approval: { drafter: '', reviewer: '', approver: '' },
         meta: {
           companyName: '', industryWorkers: '', visitDate: '', agencyName: '',
