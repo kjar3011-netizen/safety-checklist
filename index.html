@@ -958,7 +958,59 @@
       photos: {}
     };
 
+    function encodeSyncPayload(st) {
+      const compact = {
+        year: st.year,
+        month: st.month,
+        approval: st.approval,
+        meta: st.meta,
+        enabledChapters: st.enabledChapters,
+        records: st.records,
+        customItems: st.customItems,
+        guidance: st.guidance
+      };
+      const json = JSON.stringify(compact);
+      const bytes = new TextEncoder().encode(json);
+      let bin = '';
+      bytes.forEach(b => { bin += String.fromCharCode(b); });
+      return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    }
+
+    function decodeSyncPayload(str) {
+      let b64 = str.replace(/-/g, '+').replace(/_/g, '/');
+      while (b64.length % 4) b64 += '=';
+      const bin = atob(b64);
+      const bytes = new Uint8Array(bin.length);
+      for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+      return JSON.parse(new TextDecoder().decode(bytes));
+    }
+
     function loadState() {
+      try {
+        const params = new URLSearchParams(window.location.search);
+        const syncParam = params.get('sync');
+        if (syncParam) {
+          const imported = decodeSyncPayload(syncParam);
+          if (imported) {
+            state = {
+              ...state,
+              ...imported,
+              enabledChapters: { ...state.enabledChapters, ...(imported.enabledChapters || {}) },
+              approval: { ...state.approval, ...(imported.approval || {}) },
+              meta: { ...state.meta, ...(imported.meta || {}) },
+              records: imported.records || {},
+              customItems: imported.customItems || {},
+              guidance: imported.guidance || {}
+            };
+            saveState();
+            if (window.history && window.history.replaceState) {
+              window.history.replaceState({}, '', window.location.pathname + '?from=blog_app');
+            }
+            setTimeout(() => showToast('인앱 브라우저에서 입력한 점검 내용을 그대로 불러왔습니다.'), 400);
+            return;
+          }
+        }
+      } catch (e) {}
       try {
         const raw = localStorage.getItem(STORAGE_KEY);
         if (raw) {
@@ -2395,11 +2447,16 @@ ${item.detail}`,
         noticeText.textContent = '네이버·카톡 앱 내에서는 PDF 저장 및 백업이 제한될 수 있습니다. Chrome으로 열어 이용해 주세요.';
         btnChrome.classList.remove('hidden');
         btnChrome.addEventListener('click', () => {
-          const base = window.location.href.split('#')[0];
-          const sep = base.includes('?') ? '&' : '?';
-          const targetUrl = window.__isChecklistUnlocked && !base.includes('from=blog_app')
-            ? `${base}${sep}from=blog_app`
-            : base;
+          const baseClean = window.location.origin + window.location.pathname;
+          const qs = new URLSearchParams(window.location.search);
+          if (window.__isChecklistUnlocked) qs.set('from', 'blog_app');
+          try {
+            const encoded = encodeSyncPayload(state);
+            if (encoded.length < 5500) {
+              qs.set('sync', encoded);
+            }
+          } catch (e) {}
+          const targetUrl = `${baseClean}?${qs.toString()}`;
           const stripped = targetUrl.replace(/^https?:\/\//i, '');
           window.location.href = `intent://${stripped}#Intent;scheme=https;package=com.android.chrome;end`;
         });
