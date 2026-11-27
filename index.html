@@ -958,16 +958,46 @@
       photos: {}
     };
 
+    function getAllChapterKeys() {
+      const keys = [];
+      PART_ORDER.forEach(p => PART_CHAPTERS[p].forEach(ch => keys.push(p + '::' + ch)));
+      return keys;
+    }
+
     function encodeSyncPayload(st) {
+      const allKeys = getAllChapterKeys();
+      const enabledIdx = [];
+      allKeys.forEach((k, idx) => { if (st.enabledChapters[k]) enabledIdx.push(idx); });
+
+      const cleanRecords = {};
+      Object.keys(st.records || {}).forEach(yr => {
+        Object.keys(st.records[yr] || {}).forEach(mo => {
+          const moObj = st.records[yr][mo] || {};
+          Object.keys(moObj).forEach(id => {
+            const r = moObj[id];
+            if (r && (r.status || r.comment || r.deadline || (r.subIssues && r.subIssues.length))) {
+              if (!cleanRecords[yr]) cleanRecords[yr] = {};
+              if (!cleanRecords[yr][mo]) cleanRecords[yr][mo] = {};
+              const item = {};
+              if (r.status) item.s = r.status;
+              if (r.comment) item.c = r.comment;
+              if (r.deadline) item.d = r.deadline;
+              if (r.subIssues && r.subIssues.length) item.i = r.subIssues;
+              cleanRecords[yr][mo][id] = item;
+            }
+          });
+        });
+      });
+
       const compact = {
-        year: st.year,
-        month: st.month,
-        approval: st.approval,
-        meta: st.meta,
-        enabledChapters: st.enabledChapters,
-        records: st.records,
-        customItems: st.customItems,
-        guidance: st.guidance
+        y: st.year,
+        m: st.month,
+        a: st.approval,
+        t: st.meta,
+        e: enabledIdx,
+        r: cleanRecords,
+        cu: st.customItems,
+        g: st.guidance
       };
       const json = JSON.stringify(compact);
       const bytes = new TextEncoder().encode(json);
@@ -982,7 +1012,34 @@
       const bin = atob(b64);
       const bytes = new Uint8Array(bin.length);
       for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
-      return JSON.parse(new TextDecoder().decode(bytes));
+      const raw = JSON.parse(new TextDecoder().decode(bytes));
+      if (raw.y !== undefined) {
+        const allKeys = getAllChapterKeys();
+        const enabledChapters = {};
+        allKeys.forEach((k, idx) => { enabledChapters[k] = (raw.e || []).includes(idx); });
+        const records = {};
+        Object.keys(raw.r || {}).forEach(yr => {
+          records[yr] = {};
+          Object.keys(raw.r[yr] || {}).forEach(mo => {
+            records[yr][mo] = {};
+            Object.keys(raw.r[yr][mo] || {}).forEach(id => {
+              const it = raw.r[yr][mo][id];
+              records[yr][mo][id] = { status: it.s || '', comment: it.c || '', deadline: it.d || '', subIssues: it.i || [] };
+            });
+          });
+        });
+        return {
+          year: raw.y,
+          month: raw.m,
+          approval: raw.a || {},
+          meta: raw.t || {},
+          enabledChapters,
+          records,
+          customItems: raw.cu || {},
+          guidance: raw.g || {}
+        };
+      }
+      return raw;
     }
 
     function loadState() {
@@ -2452,7 +2509,7 @@ ${item.detail}`,
           if (window.__isChecklistUnlocked) qs.set('from', 'blog_app');
           try {
             const encoded = encodeSyncPayload(state);
-            if (encoded.length < 5500) {
+            if (encoded.length < 7500) {
               qs.set('sync', encoded);
             }
           } catch (e) {}
